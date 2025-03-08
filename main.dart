@@ -1,4 +1,4 @@
-"C:\Users\USER\Desktop\flutter projects\flutter_application_4\flutter_appa_4"import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
@@ -8,96 +8,122 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomePage(),
+      home: CalculatorPage(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
+class CalculatorPage extends StatefulWidget {
+  @override
+  _CalculatorPageState createState() => _CalculatorPageState();
+}
+
+class _CalculatorPageState extends State<CalculatorPage> {
+  // Controllers for text fields
+  TextEditingController firstNumberController = TextEditingController();
+  TextEditingController secondNumberController = TextEditingController();
+
+  // String to hold the result
+  String result = "";
+
+  // Function to perform calculations
+  void calculate(String operation) {
+    double num1 = double.tryParse(firstNumberController.text) ?? 0;
+    double num2 = double.tryParse(secondNumberController.text) ?? 0;
+
+    setState(() {
+      if (operation == '+') {
+        result = (num1 + num2).toString();
+      } else if (operation == '-') {
+        result = (num1 - num2).toString();
+      } else if (operation == '*') {
+        result = (num1 * num2).toString();
+      } else if (operation == '/') {
+        if (num2 != 0) {
+          result = (num1 / num2).toString();
+        } else {
+          result = "Error! Div by 0";
+        }
+      } else if (operation == '%') {
+        result = ((num1 * num2) / 100).toString();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(' Menu '),
+        title: Text('Calculator'),
       ),
-      drawer: Drawer(
-        // This creates the sliding drawer
-        child: ListView(
-          padding: EdgeInsets.zero,
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
+            TextField(
+              controller: firstNumberController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'First Number',
+                border: OutlineInputBorder(),
               ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: secondNumberController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Second Number',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    calculate('+');
+                  },
+                  child: Text('plus +'),
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    calculate('-');
+                  },
+                  child: Text('min -'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    calculate('*');
+                  },
+                  child: Text('mul *'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    calculate('/');
+                  },
+                  child: Text('div /'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    calculate('%');
+                  },
+                  child: Text('per %'),
+                ),
+              ],
+            ),
+            SizedBox(height: 30),
+            Text(
+              'Result: $result',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                // Close the drawer and show a message
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Home selected')),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                // Close the drawer and show a message
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Settings selected')),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
-              onTap: () {
-                // Close the drawer and show a message
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Logout selected')),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.school),
-              title: Text('Student Marks'),
-              onTap: () {
-                // Close the drawer and show a message
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Student Marks selected')),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.calculate),
-              title: Text('Calculator'),
-              onTap: () {
-                // Close the drawer and show a message
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Calculator selected')),
-                );
-              },
             ),
           ],
         ),
-      ),
-      body: Center(
-        child: Text(
-            'Welcome to this app giving calculation tools and knowledge about students udate marks!'),
       ),
     );
   }
