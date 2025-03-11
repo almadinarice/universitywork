@@ -1,148 +1,158 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Multiple Inputs Example',
       debugShowCheckedModeBanner: false,
-      home: const InputPage(),
+      theme: ThemeData(
+        fontFamily: GoogleFonts.poppins().fontFamily,
+      ),
+      home: FirstPage(),
     );
   }
 }
 
-class InputPage extends StatefulWidget {
-  const InputPage({super.key});
-
-  @override
-  State<InputPage> createState() => _InputPageState();
+// 🎨 Common Background Decoration
+BoxDecoration backgroundDecoration() {
+  return BoxDecoration(
+    gradient: LinearGradient(
+      colors: [Colors.blue.shade900, Colors.blue.shade300],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+  );
 }
 
-class _InputPageState extends State<InputPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-
-  // List to hold multiple entries
-  List<Map<String, String>> entries = [];
-
-  // Save entries as a JSON string in SharedPreferences
-  Future<void> saveEntries() async {
-    final prefs = await SharedPreferences.getInstance();
-    String jsonEntries = jsonEncode(entries);
-    await prefs.setString('entries', jsonEntries);
-  }
-
-  // Add an entry and clear input fields
-  void _addEntry() {
-    if (emailController.text.isEmpty || nameController.text.isEmpty) {
-      return;
-    }
-    setState(() {
-      entries.add({
-        "email": emailController.text,
-        "name": nameController.text,
-      });
-      emailController.clear();
-      nameController.clear();
-    });
-    saveEntries();
-  }
-
-  // Navigate to the DisplayPage to show all saved entries
-  void _navigateToDisplayPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const DisplayPage()),
-    );
-  }
-
+class FirstPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Enter Multiple Inputs")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: "Email"),
-            ),
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: "Name"),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: _addEntry,
-                  child: const Text("Add Entry"),
+      body: Container(
+        decoration: backgroundDecoration(),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Sharjeel",
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                        blurRadius: 5,
+                        color: Colors.black54,
+                        offset: Offset(2, 2))
+                  ],
                 ),
-                const SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: _navigateToDisplayPage,
-                  child: const Text("Save and Next"),
-                ),
-              ],
-            ),
-          ],
+              ),
+              SizedBox(height: 20),
+              customButton(context, "Next Page", SecondPage()),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class DisplayPage extends StatefulWidget {
-  const DisplayPage({super.key});
-
+class SecondPage extends StatelessWidget {
   @override
-  State<DisplayPage> createState() => _DisplayPageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: backgroundDecoration(),
+        child: Center(
+          child: customButton(context, "Go to Next Page", ThirdPage()),
+        ),
+      ),
+    );
+  }
 }
 
-class _DisplayPageState extends State<DisplayPage> {
-  List<Map<String, dynamic>> entries = [];
-
-  // Load the saved entries from SharedPreferences
-  Future<void> loadEntries() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? jsonEntries = prefs.getString('entries');
-    if (jsonEntries != null) {
-      List decoded = jsonDecode(jsonEntries);
-      setState(() {
-        entries = List<Map<String, dynamic>>.from(decoded);
-      });
-    }
-  }
-
+class ThirdPage extends StatefulWidget {
   @override
-  void initState() {
-    super.initState();
-    loadEntries();
+  _ThirdPageState createState() => _ThirdPageState();
+}
+
+class _ThirdPageState extends State<ThirdPage> {
+  String name = "Sharjeel";
+
+  void changeName() {
+    setState(() {
+      name = name == "Sharjeel" ? "Safdar" : "Sharjeel";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Display All Entries")),
-      body: ListView.builder(
-        itemCount: entries.length,
-        itemBuilder: (context, index) {
-          final entry = entries[index];
-          return ListTile(
-            title: Text("Email: ${entry['email']}"),
-            subtitle: Text("Name: ${entry['name']}"),
-          );
-        },
+      body: Container(
+        decoration: backgroundDecoration(),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedSwitcher(
+                duration: Duration(milliseconds: 500),
+                child: Text(
+                  name,
+                  key: ValueKey<String>(name),
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                          blurRadius: 5,
+                          color: Colors.black54,
+                          offset: Offset(2, 2))
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              customButton(context, "Change Name", null, onPressed: changeName),
+            ],
+          ),
+        ),
       ),
     );
   }
+}
+
+// 🟢 Custom Button Widget
+Widget customButton(BuildContext context, String text, Widget? nextPage,
+    {VoidCallback? onPressed}) {
+  return ElevatedButton(
+    onPressed: onPressed ??
+        () {
+          if (nextPage != null) {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => nextPage));
+          }
+        },
+    style: ElevatedButton.styleFrom(
+      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 10,
+      backgroundColor: Colors.white,
+      shadowColor: Colors.black45,
+    ),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.blue.shade900,
+      ),
+    ),
+  );
 }
